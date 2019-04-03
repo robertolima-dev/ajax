@@ -1,0 +1,106 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<title>Categoria de filmes</title>
+	<script src="xmltojson.js"></script>
+	<script>
+		function getFilmes() {
+			let xmlHttp = new XMLHttpRequest();
+			xmlHttp.open('GET', 'http://localhost/ajax/filmes.xml');
+
+			xmlHttp.onreadystatechange = () => {
+				if(xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+					let XMLFilmes = xmlHttp.responseText;
+					let parser = new DOMParser();
+
+					domFilmes = parser.parseFromString(XMLFilmes, 'text/xml');
+
+					//console.log(domFilmes);
+
+					jsonFilmes = xmlToJson(domFilmes);
+
+					//console.log(jsonFilmes);
+
+					for(let i in jsonFilmes['filmes']['filme']) {
+						let item = jsonFilmes['filmes']['filme'][i]
+
+						let divRow = document.createElement('div');
+						divRow.className = 'row'
+
+						let divCol = document.createElement('div');
+						divCol.className = 'col'
+
+						let p1 = document.createElement('p');
+						p1.innerHTML = '<strong>Título:</strong> ' + item['titulo']['#text'];
+
+						let p2 = document.createElement('p');
+						p2.innerHTML = '<strong>Resumo:</strong> ' + item['resumo']['#text'];
+
+						let genero = '';
+						for(let g in item.genero) {
+							if(genero) {
+								genero += ', '
+							}
+							genero += item.genero[g]['#text'];
+						}
+
+						let p3 = document.createElement('p');
+						p3.innerHTML = '<strong>Gênero:</strong> ' + genero
+
+						let elenco = '';
+						for(let e in item.elenco.ator) {
+							if(elenco) {
+								elenco += ', '
+							}
+							elenco += item.elenco.ator[e]['#text'];
+						}
+
+						let p4 = document.createElement('p');
+						p4.innerHTML = '<strong>Elenco:</strong> ' + elenco
+
+						let p5 = document.createElement('p');
+						p5.innerHTML = '<strong>Data de Lançamento:</strong> ' + item.dataLancamento['#text'] + ' (' + item.dataLancamento['@attributes']['pais'] + ')'
+
+						let hr = document.createElement('hr');
+
+						divRow.appendChild(divCol);
+						divCol.appendChild(p1);
+						divCol.appendChild(p2);
+						divCol.appendChild(p3);
+						divCol.appendChild(p4);
+						divCol.appendChild(p5);
+						divCol.appendChild(hr);
+
+						document.getElementById('lista').appendChild(divRow);
+					}
+				}
+				if(xmlHttp.readyState == 4 && xmlHttp.status == 404) {
+						// testes
+					}
+				}
+
+				xmlHttp.send();
+			}
+
+		</script>
+	</head>
+	<body>
+		<nav class="navbar navbra-light bg-light mb-4">
+			<div class="container">
+				<div class="navbar-brand mb-0 h1"> 
+					<h3>Catalogo de filmes</h3>
+				</div>
+			</div>
+		</nav>
+		<div class="container" id="lista">
+			<div class="row">
+				<div class="col mb-5">
+					<button type="button" class="btn btn-success" onclick="getFilmes()">
+						Listar filmes
+					</button>
+				</div>
+			</div>
+		</div>
+	</body>
+	</html>
